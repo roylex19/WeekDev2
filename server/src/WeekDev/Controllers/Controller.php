@@ -6,7 +6,7 @@ use WeekDev\Http\Request;
 
 class Controller
 {
-    protected Request $oRequest;
+    public Request $oRequest;
 
     public function __construct()
     {

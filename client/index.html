@@ -7,6 +7,20 @@
     <title>Document</title>
 </head>
 <body>
-
+<button id="send">Отправить</button>
+<script>
+    document.getElementById("send").addEventListener("click", () => {
+        const request = new XMLHttpRequest();
+        request.responseType = "json";
+        request.open("POST", "http://lift.local/server/index.php", true);
+        request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        request.addEventListener("readystatechange", () => {
+            if(request.readyState === 4 && request.status === 200){
+                console.log(request.response);
+            }
+        });
+        request.send("test=qwe");
+    });
+</script>
 </body>
 </html>
