@@ -6,10 +6,13 @@ use WeekDev\Http\Request;
 
 class Controller
 {
-    public Request $oRequest;
+    protected Request $oRequest;
+    protected array $arRequestData;
 
     public function __construct()
     {
-        $this->oRequest = new Request();
+        $oRequest = new Request();
+        $this->oRequest = $oRequest;
+        $this->arRequestData = $oRequest->getData();
     }
 }

@@ -1,0 +1,4 @@
+onload = () => {
+    new App();
+}
+

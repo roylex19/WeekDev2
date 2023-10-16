@@ -2,10 +2,12 @@
 
 namespace WeekDev;
 
+use WeekDev\Controllers\ElevatorController;
+
 class App
 {
     public static function init(): void
     {
-        header("Access-Control-Allow-Origin: *");
+        new ElevatorController(2, 5, 6);
     }
 }

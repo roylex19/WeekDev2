@@ -1,26 +1,54 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <title>WeekDev#2: Лифт</title>
 </head>
 <body>
-<button id="send">Отправить</button>
-<script>
-    document.getElementById("send").addEventListener("click", () => {
-        const request = new XMLHttpRequest();
-        request.responseType = "json";
-        request.open("POST", "http://lift.local/server/index.php", true);
-        request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        request.addEventListener("readystatechange", () => {
-            if(request.readyState === 4 && request.status === 200){
-                console.log(request.response);
-            }
-        });
-        request.send("test=qwe");
-    });
-</script>
+<form id="formStart">
+    <div class="form-group">
+        <label for="numFloors">
+            <span>Этажность дома:</span>
+            <span class="input-value"></span>
+        </label>
+        <input type="range" id="numFloors" min="5" max="18" value="5">
+    </div>
+    <div class="form-group">
+        <label for="numElevators">
+            <span>Количество лифтов:</span>
+            <span class="input-value"></span>
+        </label>
+        <input type="range" id="numElevators" min="1" max="4" value="1">
+    </div>
+    <div class="form-group">
+        <label for="elevatorCapacity">
+            <span>Вместимость лифтов:</span>
+            <span class="input-value"></span>
+        </label>
+        <input type="range" id="elevatorCapacity" min="2" max="8" value="2">
+    </div>
+    <button type="submit">Построить дом</button>
+</form>
+<div class="building hidden">
+    <div class="floors">
+        <div class="floor">
+            <div class="floor__panel">
+                <button type="button" class="floor__button-call-elevator">о</button>
+            </div>
+        </div>
+    </div>
+    <div class="elevators">
+        <div class="elevator opened">
+            <div class="elevator__doors"></div>
+            <div class="elevator__panel">
+                <button type="button" class="elevator__button-select-floor"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="app.js"></script>
 </body>
 </html>
