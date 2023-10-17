@@ -119,28 +119,55 @@ class Elevator
             const buttonSelectFloorNew = buttonSelectFloor.cloneNode(true);
             buttonSelectFloorNew.innerText = i + 1;
             buttonSelectFloorNew.onclick = () => {
-                this.closeDoors();
+                this.moveToFloor(i);
             };
             this.panelBlock.append(buttonSelectFloorNew);
         }
     }
 
     closeDoors = () => {
-        this.element.classList.remove("opened");
-        this.doorsBlock.ontransitionend = this.onAfterCloseDoors;
+        return new Promise((resolve) => {
+            this.element.classList.remove("opened");
+            this.doorsBlock.ontransitionend = () => {
+                resolve();
+            };
+        });
     };
 
     openDoors = () => {
-        this.element.classList.add("opened");
-        this.doorsBlock.ontransitionend = this.onAfterOpenDoors;
+        return new Promise((resolve) => {
+            this.element.classList.add("opened");
+            this.doorsBlock.ontransitionend = () => {
+                resolve();
+            };
+        });
     };
 
-    onAfterCloseDoors = () => {
-        console.log("Дверь закрыта");
+    moveToFloor = (destinationFloor) => {
+        this.closeDoors().then(() => {
+            this.element.ontransitionend = (e) => {
+                if(e.propertyName !== "bottom") return;
+                this.openDoors();
+            };
+            this.element.style.bottom = `${destinationFloor * 220}px`;
+        });
     };
 
-    onAfterOpenDoors = () => {
-        console.log("Дверь открыта");
+    animate = ({timing, draw, duration}) => {
+        return new Promise((resolve) => {
+            let start = performance.now();
+            requestAnimationFrame(function animate(time){
+                let timeFraction = (time - start) / duration;
+                if(timeFraction > 1) timeFraction = 1;
+                let progress = timing(timeFraction);
+                draw(progress);
+                if(timeFraction < 1){
+                    requestAnimationFrame(animate);
+                }else{
+                    resolve();
+                }
+            });
+        });
     };
 }
 
