@@ -9,6 +9,10 @@ body {
     width: 100%;
 }
 
+button {
+    cursor: pointer;
+}
+
 .form-group {
     display: flex;
     align-items: center;
@@ -34,15 +38,30 @@ label {
 
 .elevators {
     display: flex;
-    gap: 20px;
     justify-content: space-between;
     position: absolute;
     bottom: 0;
+    left: 100px;
+    right: 100px;
+    width: calc(100% - 100px * 2);
 }
 
 .floor {
     background-color: sienna;
     height: 200px;
+    padding: 10px;
+}
+
+.floor__button-call-elevator {
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    background-color: #b4b4b4;
+}
+
+.floor__button-call-elevator.active {
+    background-color: #d24545;
 }
 
 .elevator {
@@ -65,6 +84,6 @@ label {
     transition: width 2s ease-in-out;
 }
 
-.elevator.opened .elevator__doors{
+.elevator.opened .elevator__doors {
     width: 0;
 }

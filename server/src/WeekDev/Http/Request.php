@@ -2,7 +2,7 @@
 
 namespace WeekDev\Http;
 
-class Request
+final class Request
 {
     public function __construct()
     {

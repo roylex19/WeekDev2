@@ -4,7 +4,7 @@ namespace WeekDev\Http;
 
 use Exception;
 
-class Response
+final class Response
 {
     private array $arResponse;
     private const STATUS_SUCCESS = "success";
@@ -22,6 +22,8 @@ class Response
             http_response_code(500);
             $this->arResponse = $this->getResponseError($oException->getMessage());
         }
+
+        exit(json_encode($this->arResponse));
     }
 
     private function getResponseSuccess(array $arData): array
@@ -38,10 +40,5 @@ class Response
             "status" => self::STATUS_ERROR,
             "message" => $sError,
         );
-    }
-
-    public function send(): void
-    {
-        echo json_encode($this->arResponse);
     }
 }

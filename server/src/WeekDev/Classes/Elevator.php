@@ -2,15 +2,16 @@
 
 namespace WeekDev\Classes;
 
-class Elevator
+final class Elevator
 {
     private int $iCapacity;
     private int $iCurrentFloor;
     private int $iDestinationFloor;
     private array $arPassengers;
 
-    public function __construct($iCapacity)
+    public function __construct(int $iCurrentFloor, int $iCapacity)
     {
+        $this->iCurrentFloor = $iCurrentFloor;
         $this->iCapacity = $iCapacity;
     }
 
@@ -27,5 +28,10 @@ class Elevator
     public function move(): void
     {
 
+    }
+
+    public function getCapacity(): int
+    {
+        return $this->iCapacity;
     }
 }

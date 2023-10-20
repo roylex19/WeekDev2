@@ -4,29 +4,24 @@ namespace WeekDev\Controllers;
 
 use WeekDev\{Classes\Building, Http\Response};
 
-class ElevatorController extends Controller
+final class ElevatorController extends Controller
 {
     private Building $oBuilding;
 
-    public function __construct($iFloors, $iNumElevators, $iElevatorCapacity)
+    public function __construct()
     {
         parent::__construct();
 
-        $this->oBuilding = new Building($iFloors, $iNumElevators, $iElevatorCapacity);
-
-        if($this->oRequest->isAjax()){
-            $oResponse = new Response($this->arRequestData);
-            $oResponse->send();
-        }
+        $this->oBuilding = new Building($this->arRequestData["elevators"]);
     }
 
-    public function handleRequest($iFloor, $iDestinationFloor): void
+    public function callElevator(): Response
     {
+        $iFloor = $this->arRequestData["floor"];
+        $iElevatorHeight = $this->arRequestData["elevatorHeight"];
 
-    }
-
-    public function run(): void
-    {
-
+        return new Response(array(
+            "position" => $iElevatorHeight * ($iFloor - 1)
+        ));
     }
 }

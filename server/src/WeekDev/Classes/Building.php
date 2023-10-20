@@ -2,18 +2,18 @@
 
 namespace WeekDev\Classes;
 
-class Building
+use WeekDev\Collections\Elevators;
+
+final class Building
 {
-    private int $iFloors;
-    private array $arElevators;
+    public Elevators $oElevators;
 
-    public function __construct($iFloors, $iNumElevators, $iElevatorCapacity)
+    public function __construct(array $arElevators)
     {
-        $this->iFloors = $iFloors;
-    }
-
-    public function callElevator($iFloor): void
-    {
-
+        $oElevators = new Elevators();
+        foreach($arElevators as $arElevator){
+            $oElevators[] = new Elevator($arElevator["currentFloor"], $arElevator["capacity"]);
+        }
+        $this->oElevators = $oElevators;
     }
 }
