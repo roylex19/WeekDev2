@@ -71,7 +71,7 @@ label {
     width: 150px;
     bottom: 0;
     transition-property: bottom;
-    transition-timing-function: linear;
+    transition-timing-function: ease-in-out;
 }
 
 .elevator__doors {
