@@ -65,11 +65,11 @@ class Building
         this.buildingBlock = document.querySelector(".building");
         this.floorsBlock = this.buildingBlock.querySelector(".floors");
         this.elevatorsBlock = this.buildingBlock.querySelector(".elevators");
-        this.floors = [];
-        this.elevators = [];
         this.numFloors = numFloors;
         this.numElevators = numElevators;
         this.elevatorCapacity = elevatorCapacity;
+        this.floors = [];
+        this.elevators = [];
         this.elevatorQueue = [];
     };
 
@@ -123,10 +123,8 @@ class Building
         });
     };
 
-    addFloorToElevatorQueue = (floor) => {
-        app.building.elevatorQueue.push({
-            destinationFloor: floor
-        });
+    addToElevatorQueue = (floor) => {
+        app.building.elevatorQueue.push(floor);
     };
 
     getData = () => {
@@ -137,11 +135,7 @@ class Building
     };
 
     getElevatorsData = () => {
-        const elevators = [];
-        this.elevators.forEach(elevator => {
-            elevators.push(elevator.getData());
-        });
-        return elevators;
+        return this.elevators.map(elevator => (elevator.getData()));
     };
 
     setData = (data) => {
@@ -158,7 +152,7 @@ class Floor
         const buttonCallElevator = element.querySelector(".floor__button-call-elevator");
         buttonCallElevator.addEventListener("click", () => {
             this.setActiveButtonCallElevator(true);
-            app.building.addFloorToElevatorQueue(this.number);
+            app.building.addToElevatorQueue(this.number);
         });
 
         this.buttonCallElevator = buttonCallElevator;
@@ -186,8 +180,8 @@ class Elevator
         this.height = 220;
         this.speed = 2;
         this.doorsCloseDelayTime = 5;
-        this.doorsCloseTime = 2;
         this.isDoorsOpened = false;
+        this.floorQueue = [];
 
         const buttonSelectFloor = this.buttonsFloorsBlock.querySelector(".elevator__button-select-floor");
         this.buttonsFloorsBlock.innerHTML = "";
@@ -195,7 +189,8 @@ class Elevator
             const buttonSelectFloorNew = buttonSelectFloor.cloneNode(true);
             buttonSelectFloorNew.innerText = i + 1;
             buttonSelectFloorNew.onclick = () => {
-                //this.moveToFloor(i);
+                this.addToFloorQueue(i + 1);
+                this.sendSelectedFloorsToServer();
             };
             this.buttonsFloorsBlock.append(buttonSelectFloorNew);
         }
@@ -255,6 +250,27 @@ class Elevator
         this.floor = this.floors[number - 1];
     };
 
+    sendSelectedFloorsToServer = () => {
+        app.ajax({
+            action: "sendElevator",
+            elevators: app.building.getElevatorsData(),
+            id: this.id
+        }).then(res => {
+            if(res === null){
+                return false;
+            }
+            this.setData(res.data.elevator);
+            const action = res.data.action;
+            if(action === "moveToFloor"){
+                this.moveToPosition(res.data.position, res.data.duration);
+            }
+        });
+    };
+
+    addToFloorQueue = (floor) => {
+        this.floorQueue.push(floor);
+    }
+
     getData = () => {
         return {
             id: this.id,
@@ -265,8 +281,7 @@ class Elevator
             isDoorsOpened: this.isDoorsOpened,
             height: this.height,
             speed: this.speed,
-            doorsCloseTime: this.doorsCloseTime,
-            doorsCloseDelayTime: this.doorsCloseDelayTime,
+            floorQueue: this.floorQueue
         };
     };
 

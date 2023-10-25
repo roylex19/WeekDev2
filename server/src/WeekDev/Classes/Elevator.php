@@ -15,8 +15,9 @@ final class Elevator
     private bool $bIsMoving;
     private bool $bIsDoorsOpened;
     private array $arPassengers;
+    private array $arFloorQueue;
 
-    public function __construct(int $iId, int $iCurrentFloor, int $iCapacity, bool $bIsMoving, bool $bIsAvailable, int $iHeight, int $iSpeed, bool $bIsDoorsOpened)
+    public function __construct(int $iId, int $iCurrentFloor, int $iCapacity, bool $bIsMoving, bool $bIsAvailable, int $iHeight, int $iSpeed, bool $bIsDoorsOpened, array $arFloorQueue)
     {
         $this->iId = $iId;
         $this->iCurrentFloor = $iCurrentFloor;
@@ -26,6 +27,7 @@ final class Elevator
         $this->bIsDoorsOpened = $bIsDoorsOpened;
         $this->iHeight = $iHeight;
         $this->iSpeed = $iSpeed;
+        $this->arFloorQueue = $arFloorQueue;
     }
 
     public function moveToFloor($iDestinationFloor): Response
@@ -102,6 +104,16 @@ final class Elevator
     public function getId(): int
     {
         return $this->iId;
+    }
+
+    public function getFloorQueue(): array
+    {
+        return $this->arFloorQueue;
+    }
+
+    public function removeFirstFloor(): void
+    {
+        array_shift($this->arFloorQueue);
     }
 
     public function getData(): array

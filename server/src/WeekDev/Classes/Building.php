@@ -20,7 +20,8 @@ final class Building
                 $arElevator["isAvailable"],
                 $arElevator["height"],
                 $arElevator["speed"],
-                $arElevator["isDoorsOpened"]
+                $arElevator["isDoorsOpened"],
+                $arElevator["floorQueue"]
             );
         }
         $this->oElevators = $oElevators;

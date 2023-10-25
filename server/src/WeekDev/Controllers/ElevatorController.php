@@ -2,7 +2,7 @@
 
 namespace WeekDev\Controllers;
 
-use WeekDev\{Classes\Building, Classes\Elevator, Http\Response};
+use WeekDev\{Classes\Building, Classes\Elevator, Collections\Elevators, Http\Response};
 
 final class ElevatorController extends Controller
 {
@@ -21,8 +21,7 @@ final class ElevatorController extends Controller
         $arElevatorQueue = $this->arInput["elevatorQueue"];
 
         if(!empty($arElevatorQueue)){
-            $arElevatorQueueFirst = current($arElevatorQueue);
-            $iDestinationFloor = $arElevatorQueueFirst["destinationFloor"];
+            $iDestinationFloor = current($arElevatorQueue);
             $oElevator = $this->findAvailableElevator($iDestinationFloor);
             if(!empty($oElevator)){
                 if(!$oElevator->isMoving()){
@@ -45,6 +44,22 @@ final class ElevatorController extends Controller
 
         $oResponse->addData(array("elevatorQueue" => $arElevatorQueue));
         $oResponse->send();
+    }
+
+    public function sendElevator(): void
+    {
+        $oResponse = new Response();
+
+        $oElevator = $this->oBuilding->oElevators->offsetGet($this->arInput["id"]);
+        if(!empty($oElevator)){
+            $iNextFloor = current($oElevator->getFloorQueue());
+            if(!$oElevator->isMoving()){
+                $oElevator->removeFirstFloor();
+                $oResponse = $oElevator->moveToFloor($iNextFloor);
+            }
+            $oResponse->addData(array("elevator" => $oElevator->getData()));
+            $oResponse->send();
+        }
     }
 
     public function openElevatorDoors(): void
