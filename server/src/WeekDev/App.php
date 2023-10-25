@@ -10,7 +10,7 @@ final class App
     public static function init(): void
     {
         $oRequest = new Request();
-        $oRequestData = $oRequest->getData();
+        $oRequestData = $oRequest->getInput();
         $sAction = $oRequestData["action"];
         $oElevatorController = new ElevatorController();
 
@@ -20,7 +20,8 @@ final class App
             }
             call_user_func(array($oElevatorController, $sAction));
         }catch(Exception $oException){
-            new Response(array("message" => $oException->getMessage()));
+            $oResponse = new Response(array("message" => $oException->getMessage()));
+            $oResponse->send();
         }
     }
 }

@@ -12,7 +12,16 @@ final class Building
     {
         $oElevators = new Elevators();
         foreach($arElevators as $arElevator){
-            $oElevators[] = new Elevator($arElevator["currentFloor"], $arElevator["capacity"]);
+            $oElevators[] = new Elevator(
+                $arElevator["id"],
+                $arElevator["currentFloor"],
+                $arElevator["capacity"],
+                $arElevator["isMoving"],
+                $arElevator["isAvailable"],
+                $arElevator["height"],
+                $arElevator["speed"],
+                $arElevator["isDoorsOpened"]
+            );
         }
         $this->oElevators = $oElevators;
     }

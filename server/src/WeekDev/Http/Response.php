@@ -13,17 +13,12 @@ final class Response
     public function __construct(array $arResponse = array())
     {
         try{
-            if(empty($arResponse)){
-                throw new Exception("Response is empty");
-            }
             http_response_code(200);
             $this->arResponse = $this->getResponseSuccess($arResponse);
         }catch(Exception $oException){
             http_response_code(500);
             $this->arResponse = $this->getResponseError($oException->getMessage());
         }
-
-        exit(json_encode($this->arResponse));
     }
 
     private function getResponseSuccess(array $arData): array
@@ -40,5 +35,15 @@ final class Response
             "status" => self::STATUS_ERROR,
             "message" => $sError,
         );
+    }
+
+    public function addData(array $arData): void
+    {
+        $this->arResponse["data"] = array_merge($this->arResponse["data"], $arData);
+    }
+
+    public function send(): void
+    {
+        exit(json_encode($this->arResponse));
     }
 }

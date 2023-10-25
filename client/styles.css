@@ -70,7 +70,8 @@ label {
     height: 200px;
     width: 150px;
     bottom: 0;
-    transition: bottom 2s ease-in-out;
+    transition-property: bottom;
+    transition-timing-function: linear;
 }
 
 .elevator__doors {
@@ -84,6 +85,6 @@ label {
     transition: width 2s ease-in-out;
 }
 
-.elevator.opened .elevator__doors {
+.elevator__doors.opened {
     width: 0;
 }

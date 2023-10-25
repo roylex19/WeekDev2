@@ -2,7 +2,7 @@
 
 namespace WeekDev\Controllers;
 
-use WeekDev\{Classes\Building, Http\Response};
+use WeekDev\{Classes\Building, Classes\Elevator, Http\Response};
 
 final class ElevatorController extends Controller
 {
@@ -12,16 +12,76 @@ final class ElevatorController extends Controller
     {
         parent::__construct();
 
-        $this->oBuilding = new Building($this->arRequestData["elevators"]);
+        $this->oBuilding = new Building($this->arInput["elevators"]);
     }
 
-    public function callElevator(): Response
+    public function callElevator(): void
     {
-        $iFloor = $this->arRequestData["floor"];
-        $iElevatorHeight = $this->arRequestData["elevatorHeight"];
+        $oResponse = new Response();
+        $arElevatorQueue = $this->arInput["elevatorQueue"];
 
-        return new Response(array(
-            "position" => $iElevatorHeight * ($iFloor - 1)
-        ));
+        if(!empty($arElevatorQueue)){
+            $arElevatorQueueFirst = current($arElevatorQueue);
+            $iDestinationFloor = $arElevatorQueueFirst["destinationFloor"];
+            $oElevator = $this->findAvailableElevator($iDestinationFloor);
+            if(!empty($oElevator)){
+                if(!$oElevator->isMoving()){
+                    if($iDestinationFloor !== $oElevator->getCurrentFloor()){
+                        if(!$oElevator->isDoorsOpened()){
+                            array_shift($arElevatorQueue);
+                            $oResponse = $oElevator->moveToFloor($iDestinationFloor);
+                        }else{
+                            $oResponse = $oElevator->closeDoors();
+                        }
+                    }else{
+                        array_shift($arElevatorQueue);
+                        $oResponse = $oElevator->openDoors();
+                    }
+                }
+
+                $oResponse->addData(array("elevator" => $oElevator->getData()));
+            }
+        }
+
+        $oResponse->addData(array("elevatorQueue" => $arElevatorQueue));
+        $oResponse->send();
+    }
+
+    public function openElevatorDoors(): void
+    {
+        $oElevator = $this->oBuilding->oElevators->offsetGet($this->arInput["id"]);
+        if(!empty($oElevator)){
+            $oResponse = $oElevator->openDoors();
+            $oResponse->addData(array("elevator" => $oElevator->getData()));
+            $oResponse->send();
+        }
+    }
+
+    public function closeElevatorDoors(): void
+    {
+        $oElevator = $this->oBuilding->oElevators->offsetGet($this->arInput["id"]);
+        if(!empty($oElevator)){
+            $oResponse = $oElevator->closeDoors();
+            $oResponse->addData(array("elevator" => $oElevator->getData()));
+            $oResponse->send();
+        }
+    }
+
+    private function findAvailableElevator(int $iFloor): ?Elevator
+    {
+        $iMinDistance = PHP_INT_MAX;
+        $oClosestElevator = null;
+
+        foreach($this->oBuilding->oElevators as $oElevator){
+            if($oElevator->isAvailable()){
+                $iDistance = abs($oElevator->getCurrentFloor() - $iFloor);
+                if($iDistance < $iMinDistance){
+                    $iMinDistance = $iDistance;
+                    $oClosestElevator = $oElevator;
+                }
+            }
+        }
+
+        return $oClosestElevator;
     }
 }

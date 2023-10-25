@@ -7,12 +7,12 @@ use WeekDev\Http\Request;
 class Controller
 {
     protected Request $oRequest;
-    protected array $arRequestData;
+    protected array $arInput;
 
     public function __construct()
     {
         $oRequest = new Request();
         $this->oRequest = $oRequest;
-        $this->arRequestData = $oRequest->getData();
+        $this->arInput = $oRequest->getInput();
     }
 }

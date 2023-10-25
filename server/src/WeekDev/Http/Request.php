@@ -11,7 +11,7 @@ final class Request
         header("Content-Type: application/json");
     }
 
-    public function getData(): array
+    public function getInput(): array
     {
         return json_decode(file_get_contents("php://input"), true) ?? array();
     }
