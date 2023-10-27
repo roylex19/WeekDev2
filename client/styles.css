@@ -88,3 +88,7 @@ label {
 .elevator__doors.opened {
     width: 0;
 }
+
+.elevator__panel button {
+    border-radius: 50%;
+}

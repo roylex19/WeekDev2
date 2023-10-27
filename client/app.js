@@ -96,7 +96,7 @@ class Building
     };
 
     sendSelectedFloorsToServer = () => {
-        if(this.elevatorQueue.length === 0){
+        if(this.elevatorQueue.length === 0 && this.isElevatorsQueueEmpty()){
             return false;
         }
 
@@ -108,23 +108,27 @@ class Building
                 return false;
             }
             this.setData(res.data);
-            const elevatorData = res.data.elevator;
-            if(elevatorData === undefined){
+            const elevatorsData = res.data.elevators;
+            if(elevatorsData === undefined || elevatorsData.length === 0){
                 return false;
             }
-            const elevator = this.elevators[res.data.elevator.id];
-            elevator.setData(elevatorData);
             const action = res.data.action;
-            if(action === "moveToFloor"){
-                elevator.moveToPosition(res.data.position, res.data.duration);
-            }else if(action === "openDoors"){
-                elevator.onArrived();
-            }
+            elevatorsData.forEach(elevatorData => {
+                const elevator = this.elevators[elevatorData.id];
+                elevator.setData(elevatorData);
+                if(action === "moveToFloor"){
+                    elevator.moveToPosition(res.data.position, res.data.duration);
+                }else if(action === "openDoors"){
+                    elevator.onArrived();
+                }
+            });
         });
     };
 
     addToElevatorQueue = (floor) => {
-        app.building.elevatorQueue.push(floor);
+        if(!app.building.elevatorQueue.includes(floor)){
+            app.building.elevatorQueue.push(floor);
+        }
     };
 
     getData = () => {
@@ -132,6 +136,12 @@ class Building
             elevators: this.getElevatorsData(),
             elevatorQueue: this.elevatorQueue
         };
+    };
+
+    isElevatorsQueueEmpty = () => {
+        const floorQueue = [];
+        this.elevators.forEach(elevator => floorQueue.push(...elevator.floorQueue));
+        return floorQueue.length === 0;
     };
 
     getElevatorsData = () => {
@@ -190,7 +200,6 @@ class Elevator
             buttonSelectFloorNew.innerText = i + 1;
             buttonSelectFloorNew.onclick = () => {
                 this.addToFloorQueue(i + 1);
-                this.sendSelectedFloorsToServer();
             };
             this.buttonsFloorsBlock.append(buttonSelectFloorNew);
         }
@@ -207,6 +216,8 @@ class Elevator
             }
             this.onArrived();
         });
+
+        setInterval(this.sendSelectedFloorsToServer, 1000);
     };
 
     onArrived = () => {
@@ -250,23 +261,6 @@ class Elevator
         this.floor = this.floors[number - 1];
     };
 
-    sendSelectedFloorsToServer = () => {
-        app.ajax({
-            action: "sendElevator",
-            elevators: app.building.getElevatorsData(),
-            id: this.id
-        }).then(res => {
-            if(res === null){
-                return false;
-            }
-            this.setData(res.data.elevator);
-            const action = res.data.action;
-            if(action === "moveToFloor"){
-                this.moveToPosition(res.data.position, res.data.duration);
-            }
-        });
-    };
-
     addToFloorQueue = (floor) => {
         this.floorQueue.push(floor);
     }
@@ -290,6 +284,7 @@ class Elevator
         this.isAvailable = data.isAvailable;
         this.isMoving = data.isMoving;
         this.isDoorsOpened = data.isDoorsOpened;
+        this.floorQueue = data.floorQueue;
     };
 }
 

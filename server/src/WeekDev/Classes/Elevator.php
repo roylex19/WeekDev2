@@ -15,7 +15,7 @@ final class Elevator
     private bool $bIsMoving;
     private bool $bIsDoorsOpened;
     private array $arPassengers;
-    private array $arFloorQueue;
+    public array $arFloorQueue;
 
     public function __construct(int $iId, int $iCurrentFloor, int $iCapacity, bool $bIsMoving, bool $bIsAvailable, int $iHeight, int $iSpeed, bool $bIsDoorsOpened, array $arFloorQueue)
     {
@@ -33,6 +33,16 @@ final class Elevator
     public function moveToFloor($iDestinationFloor): Response
     {
         $this->bIsMoving = true;
+
+        $arFloorQueue = $this->getFloorQueue();
+        if(!empty($arFloorQueue)){
+            $iNextInternalFloor = reset($arFloorQueue);
+            if(abs($iNextInternalFloor - $this->iCurrentFloor) < abs($iDestinationFloor - $this->iCurrentFloor)){
+                array_shift($this->arFloorQueue);
+                $iDestinationFloor = $iNextInternalFloor;
+            }
+        }
+
         $iTargetPosition = ($iDestinationFloor - 1) * $this->iHeight;
         $iCurrentPosition = ($this->iCurrentFloor - 1) * $this->iHeight;
         $iDistance = abs($iTargetPosition - $iCurrentPosition);
@@ -124,7 +134,8 @@ final class Elevator
             "capacity" => $this->iCapacity,
             "isAvailable" => $this->bIsAvailable,
             "isMoving" => $this->bIsMoving,
-            "isDoorsOpened" => $this->bIsDoorsOpened
+            "isDoorsOpened" => $this->bIsDoorsOpened,
+            "floorQueue" => $this->arFloorQueue
         );
     }
 }
