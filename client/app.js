@@ -101,7 +101,7 @@ class Building
         }
 
         app.ajax({
-            action: "callElevator",
+            action: "processElevators",
             ...this.getData()
         }).then(res => {
             if(res === null){
@@ -192,6 +192,7 @@ class Elevator
         this.doorsCloseDelayTime = 5;
         this.isDoorsOpened = false;
         this.floorQueue = [];
+        this.buttonsSelectFloor = [];
 
         const buttonSelectFloor = this.buttonsFloorsBlock.querySelector(".elevator__button-select-floor");
         this.buttonsFloorsBlock.innerHTML = "";
@@ -200,7 +201,9 @@ class Elevator
             buttonSelectFloorNew.innerText = i + 1;
             buttonSelectFloorNew.onclick = () => {
                 this.addToFloorQueue(i + 1);
+                buttonSelectFloorNew.classList.add("active");
             };
+            this.buttonsSelectFloor.push(buttonSelectFloorNew);
             this.buttonsFloorsBlock.append(buttonSelectFloorNew);
         }
 
@@ -216,12 +219,11 @@ class Elevator
             }
             this.onArrived();
         });
-
-        setInterval(this.sendSelectedFloorsToServer, 1000);
     };
 
     onArrived = () => {
         this.floor.setActiveButtonCallElevator(false);
+        this.buttonsSelectFloor[this.floor.number - 1].classList.remove("active");
         this.openDoors();
     };
 

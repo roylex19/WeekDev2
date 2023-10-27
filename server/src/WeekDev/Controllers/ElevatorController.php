@@ -15,7 +15,7 @@ final class ElevatorController extends Controller
         $this->oBuilding = new Building($this->arInput["elevators"]);
     }
 
-    public function callElevator(): void
+    public function processElevators(): void
     {
         $oResponse = new Response();
         $arElevatorQueue = $this->arInput["elevatorQueue"];
@@ -35,7 +35,7 @@ final class ElevatorController extends Controller
                         }
                     }else{
                         array_shift($arElevatorQueue);
-                        $oResponse = $oElevator->openDoors();
+                        $oResponse = $this->serveIntermediateStops($oElevator, $iDestinationFloor);
                     }
                 }
 
@@ -57,7 +57,7 @@ final class ElevatorController extends Controller
                         }
                     }else{
                         array_shift($oElevator->arFloorQueue);
-                        $oResponse = $oElevator->openDoors();
+                        $oResponse = $this->serveIntermediateStops($oElevator, $iDestinationFloor);
                     }
 
                     $arElevatorData[] = $oElevator->getData();
@@ -68,6 +68,28 @@ final class ElevatorController extends Controller
         $oResponse->addData(array("elevators" => $arElevatorData));
         $oResponse->addData(array("elevatorQueue" => $arElevatorQueue));
         $oResponse->send();
+    }
+
+    private function serveIntermediateStops(Elevator $oElevator, $iDestinationFloor): Response
+    {
+        $oResponse = new Response();
+        $currentFloor = $oElevator->getCurrentFloor();
+
+        $sharedQueue = $this->arInput["elevatorQueue"];
+        foreach ($sharedQueue as $floor) {
+            if ($floor != $currentFloor) {
+                $oElevator->arFloorQueue[] = $floor;
+            }
+            if ($floor == $currentFloor) {
+                $oResponse = $oElevator->openDoors();
+            }
+        }
+
+        if ($iDestinationFloor != $currentFloor) {
+            $oElevator->arFloorQueue[] = $iDestinationFloor;
+        }
+
+        return $oResponse;
     }
 
     public function openElevatorDoors(): void

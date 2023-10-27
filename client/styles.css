@@ -92,3 +92,7 @@ label {
 .elevator__panel button {
     border-radius: 50%;
 }
+
+.elevator__button-select-floor.active {
+    background-color: coral;
+}
