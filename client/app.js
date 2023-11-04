@@ -108,20 +108,21 @@ class Building
                 return false;
             }
             this.setData(res.data);
-            const elevatorsData = res.data.elevators;
-            if(elevatorsData === undefined || elevatorsData.length === 0){
+            const elevatorData = res.data.elevator;
+            if(elevatorData === undefined){
                 return false;
             }
-            const action = res.data.action;
-            elevatorsData.forEach(elevatorData => {
-                const elevator = this.elevators[elevatorData.id];
-                elevator.setData(elevatorData);
-                if(action === "moveToFloor"){
-                    elevator.moveToPosition(res.data.position, res.data.duration);
-                }else if(action === "openDoors"){
-                    elevator.onArrived();
-                }
-            });
+            const action = elevatorData.action;
+            const elevator = this.elevators[elevatorData.id];
+            if(elevator === undefined){
+                return false;
+            }
+            elevator.setData(elevatorData);
+            if(action === "moveToFloor"){
+                elevator.moveToPosition(elevatorData.position, elevatorData.duration);
+            }else if(action === "openDoors"){
+                elevator.onArrived();
+            }
         });
     };
 
@@ -193,6 +194,7 @@ class Elevator
         this.isDoorsOpened = false;
         this.floorQueue = [];
         this.buttonsSelectFloor = [];
+        this.direction = 0;
 
         const buttonSelectFloor = this.buttonsFloorsBlock.querySelector(".elevator__button-select-floor");
         this.buttonsFloorsBlock.innerHTML = "";
@@ -228,6 +230,7 @@ class Elevator
     };
 
     closeDoors = () => {
+        clearTimeout();
         this.doorsBlock.classList.remove("opened");
         this.doorsBlock.ontransitionend = () => {
             app.ajax({
@@ -264,7 +267,9 @@ class Elevator
     };
 
     addToFloorQueue = (floor) => {
-        this.floorQueue.push(floor);
+        if(!this.floorQueue.includes(floor)){
+            this.floorQueue.push(floor);
+        }
     }
 
     getData = () => {
@@ -277,7 +282,8 @@ class Elevator
             isDoorsOpened: this.isDoorsOpened,
             height: this.height,
             speed: this.speed,
-            floorQueue: this.floorQueue
+            floorQueue: this.floorQueue,
+            direction: this.direction
         };
     };
 
@@ -287,6 +293,7 @@ class Elevator
         this.isMoving = data.isMoving;
         this.isDoorsOpened = data.isDoorsOpened;
         this.floorQueue = data.floorQueue;
+        this.direction = data.direction;
     };
 }
 
