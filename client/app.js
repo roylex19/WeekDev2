@@ -159,14 +159,23 @@ class Floor
     constructor(element, number){
         this.element = element;
         this.number = number;
+        this.numberBlock = null;
 
         const buttonCallElevator = element.querySelector(".floor__button-call-elevator");
         buttonCallElevator.addEventListener("click", () => {
             this.setActiveButtonCallElevator(true);
             app.building.addToElevatorQueue(this.number);
         });
-
         this.buttonCallElevator = buttonCallElevator;
+
+        if(number === 1){
+            const indicatorsBlock = element.querySelector(".floor__indicators");
+            const numberBlock = document.createElement("div");
+            numberBlock.classList.add("floor__number");
+            numberBlock.innerText = number;
+            indicatorsBlock.append(numberBlock);
+            this.numberBlock = numberBlock;
+        }
     };
 
     setActiveButtonCallElevator = (state) => {
@@ -198,6 +207,7 @@ class Elevator
         this.direction = 0;
         this.numberPassengers = 0;
         this.closeDoorsTimeoutId = null;
+        this.checkFloorIntervalId = null;
 
         this.initFloorButtons();
         this.initLoadPassengers();
@@ -207,6 +217,9 @@ class Elevator
                 return false;
             }
             this.onArrived();
+            if(this.checkFloorIntervalId !== null){
+                clearInterval(this.checkFloorIntervalId);
+            }
         });
     };
 
@@ -291,6 +304,11 @@ class Elevator
     moveToPosition = (position, duration) => {
         this.element.style.transitionDuration = duration + "s";
         this.element.style.bottom = position + "px";
+        this.checkFloorIntervalId = setInterval(this.checkFloor, 100);
+    };
+
+    checkFloor = () => {
+        this.setFloor(this.floors.length - Math.round(this.element.getBoundingClientRect().bottom / this.height) + 1);
     };
 
     setFloor(number){
