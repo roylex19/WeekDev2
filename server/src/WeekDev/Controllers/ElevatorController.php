@@ -42,7 +42,6 @@ final class ElevatorController extends Controller
                         array_shift($arElevatorQueue);
                         $arElevatorData = $oElevator->openDoors();
                     }
-
                     $arElevatorData = array_merge($arElevatorData, $oElevator->getData());
                 }
             }
@@ -51,7 +50,6 @@ final class ElevatorController extends Controller
         foreach($this->oBuilding->oElevators as $oElevator){
             if(!$oElevator->isFloorQueueEmpty()){
                 $iDestinationFloor = $oElevator->getFirstFloorQueue();
-
                 if($oElevator->isAvailable()){
                     if($iDestinationFloor !== $oElevator->getCurrentFloor()){
                         if(!$oElevator->isDoorsOpened()){
@@ -64,7 +62,6 @@ final class ElevatorController extends Controller
                         $oElevator->removeFromQueue();
                         $arElevatorData = $oElevator->openDoors();
                     }
-
                     $arElevatorData = array_merge($arElevatorData, $oElevator->getData());
                 }
             }
@@ -72,39 +69,7 @@ final class ElevatorController extends Controller
 
         $oResponse->addData(array("elevator" => $arElevatorData));
         $oResponse->addData(array("elevatorQueue" => $arElevatorQueue));
-
-        $ar = [];
-        foreach ($this->oBuilding->oElevators as $oElevator) {
-            $ar[] = $oElevator->getFloorQueue();
-        }
-        $oResponse->addData(array("debug" => $ar));
-
         $oResponse->send();
-    }
-
-    private function serveIntermediateStops(Elevator $oElevator, $iDestinationFloor): array
-    {
-        $arElevatorData = array();
-        $iCurrentFloor = $oElevator->getCurrentFloor();
-
-        $arElevatorQueue = $this->arInput["elevatorQueue"];
-        foreach($arElevatorQueue as $iFloor){
-            if($iFloor !== $iCurrentFloor){
-                $oElevator->addToFloorQueue($iFloor);
-                $iDestinationFloor = $oElevator->getFirstFloorQueue();
-            }
-            if($iFloor === $iCurrentFloor){
-                $arElevatorData = $oElevator->openDoors();
-            }
-        }
-
-        if($iDestinationFloor !== $iCurrentFloor){
-            $oElevator->addToFloorQueue($iDestinationFloor);
-        }else{
-            $arElevatorData = $oElevator->openDoors();
-        }
-
-        return $arElevatorData;
     }
 
     public function openElevatorDoors(): void
@@ -122,6 +87,26 @@ final class ElevatorController extends Controller
         $oElevator = $this->oBuilding->oElevators->offsetGet($this->arInput["id"]);
         if(!empty($oElevator)){
             $arElevatorData = array_merge($oElevator->closeDoors(), $oElevator->getData());
+            $oResponse = new Response(array("elevator" => $arElevatorData));
+            $oResponse->send();
+        }
+    }
+
+    public function loadElevatorPassenger(): void
+    {
+        $oElevator = $this->oBuilding->oElevators->offsetGet($this->arInput["id"]);
+        if(!empty($oElevator)){
+            $arElevatorData = array_merge($oElevator->loadPassenger(), $oElevator->getData());
+            $oResponse = new Response(array("elevator" => $arElevatorData));
+            $oResponse->send();
+        }
+    }
+
+    public function unloadElevatorPassenger(): void
+    {
+        $oElevator = $this->oBuilding->oElevators->offsetGet($this->arInput["id"]);
+        if(!empty($oElevator)){
+            $arElevatorData = array_merge($oElevator->unloadPassenger(), $oElevator->getData());
             $oResponse = new Response(array("elevator" => $arElevatorData));
             $oResponse->send();
         }

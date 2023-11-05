@@ -180,9 +180,10 @@ class Elevator
         this.element = element;
         this.id = id;
         this.doorsBlock = element.querySelector(".elevator__doors");
-        this.panelBlock = element.querySelector(".elevator__panel");
         this.buttonsFloorsBlock = element.querySelector(".elevator__buttons-floors");
         this.buttonsOptionBlock = element.querySelector(".elevator__buttons-option");
+        this.capacityIndicatorBlock = element.querySelector(".elevator__capacity-indicator");
+        this.numberPassengersBlock = element.querySelector(".elevator__number-passengers");
         this.floors = floors.slice(0).reverse();
         this.floor = this.floors[0];
         this.capacity = capacity;
@@ -195,7 +196,21 @@ class Elevator
         this.floorQueue = [];
         this.buttonsSelectFloor = [];
         this.direction = 0;
+        this.numberPassengers = 0;
+        this.closeDoorsTimeoutId = null;
 
+        this.initFloorButtons();
+        this.initLoadPassengers();
+
+        this.element.addEventListener("transitionend", (e) => {
+            if(e.propertyName !== "bottom"){
+                return false;
+            }
+            this.onArrived();
+        });
+    };
+
+    initFloorButtons = () => {
         const buttonSelectFloor = this.buttonsFloorsBlock.querySelector(".elevator__button-select-floor");
         this.buttonsFloorsBlock.innerHTML = "";
         for(let i = 0; i < this.floors.length; i++){
@@ -213,14 +228,28 @@ class Elevator
         const buttonCloseDoors = this.buttonsOptionBlock.querySelector(".elevator__button-close-doors");
         buttonOpenDoors.addEventListener("click", this.openDoors);
         buttonCloseDoors.addEventListener("click", this.closeDoors);
-        this.panelBlock.append(buttonOpenDoors, buttonCloseDoors);
+        this.buttonsOptionBlock.append(buttonOpenDoors, buttonCloseDoors);
+    };
 
-        this.element.addEventListener("transitionend", (e) => {
-            if(e.propertyName !== "bottom"){
-                return false;
-            }
-            this.onArrived();
-        });
+    initLoadPassengers = () => {
+        this.element.querySelector(".elevator__button-load-passenger").onclick = () => {
+            app.ajax({
+                action: "loadElevatorPassenger",
+                elevators: app.building.getElevatorsData(),
+                id: this.id
+            }).then(res => {
+                this.setData(res.data.elevator);
+            });
+        };
+        this.element.querySelector(".elevator__button-unload-passenger").onclick = () => {
+            app.ajax({
+                action: "unloadElevatorPassenger",
+                elevators: app.building.getElevatorsData(),
+                id: this.id
+            }).then(res => {
+                this.setData(res.data.elevator);
+            });
+        };
     };
 
     onArrived = () => {
@@ -230,7 +259,6 @@ class Elevator
     };
 
     closeDoors = () => {
-        clearTimeout();
         this.doorsBlock.classList.remove("opened");
         this.doorsBlock.ontransitionend = () => {
             app.ajax({
@@ -244,6 +272,9 @@ class Elevator
     };
 
     openDoors = () => {
+        if(this.closeDoorsTimeoutId !== null){
+            clearTimeout(this.closeDoorsTimeoutId);
+        }
         this.doorsBlock.classList.add("opened");
         this.doorsBlock.ontransitionend = () => {
             app.ajax({
@@ -252,9 +283,9 @@ class Elevator
                 id: this.id
             }).then(res => {
                 this.setData(res.data.elevator);
-                setTimeout(this.closeDoors, this.doorsCloseDelayTime * 1000);
             });
         };
+        this.closeDoorsTimeoutId = setTimeout(this.closeDoors, this.doorsCloseDelayTime * 1000);
     };
 
     moveToPosition = (position, duration) => {
@@ -270,7 +301,13 @@ class Elevator
         if(!this.floorQueue.includes(floor)){
             this.floorQueue.push(floor);
         }
-    }
+    };
+
+    updateNumberPassengers = (number) => {
+        this.numberPassengers = number;
+        this.numberPassengersBlock.innerText = number;
+        this.capacityIndicatorBlock.classList.toggle("active", !this.isAvailable);
+    };
 
     getData = () => {
         return {
@@ -283,7 +320,8 @@ class Elevator
             height: this.height,
             speed: this.speed,
             floorQueue: this.floorQueue,
-            direction: this.direction
+            direction: this.direction,
+            numberPassengers: this.numberPassengers
         };
     };
 
@@ -294,6 +332,7 @@ class Elevator
         this.isDoorsOpened = data.isDoorsOpened;
         this.floorQueue = data.floorQueue;
         this.direction = data.direction;
+        this.updateNumberPassengers(data.numberPassengers);
     };
 }
 

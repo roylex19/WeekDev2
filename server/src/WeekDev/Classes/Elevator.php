@@ -2,9 +2,6 @@
 
 namespace WeekDev\Classes;
 
-use WeekDev\Collections\Elevators;
-use WeekDev\Http\Response;
-
 final class Elevator
 {
     private int $iId;
@@ -13,28 +10,29 @@ final class Elevator
     private int $iSpeed;
     private int $iHeight;
     private int $iDirection;
+    private int $iNumberPassengers;
     private bool $bIsAvailable;
     private bool $bIsMoving;
     private bool $bIsDoorsOpened;
-    private array $arPassengers;
     public array $arFloorQueue;
 
     public const DIRECTION_NONE = 0;
     public const DIRECTION_UP = 1;
     public const DIRECTION_DOWN = -1;
 
-    public function __construct(int $iId, int $iCurrentFloor, int $iCapacity, bool $bIsMoving, bool $bIsAvailable, int $iHeight, int $iSpeed, bool $bIsDoorsOpened, array $arFloorQueue)
+    public function __construct(array $arElevator)
     {
-        $this->iId = $iId;
-        $this->iCurrentFloor = $iCurrentFloor;
-        $this->iCapacity = $iCapacity;
-        $this->bIsMoving = $bIsMoving;
-        $this->bIsAvailable = $bIsAvailable;
-        $this->bIsDoorsOpened = $bIsDoorsOpened;
-        $this->iHeight = $iHeight;
-        $this->iSpeed = $iSpeed;
-        $this->arFloorQueue = $arFloorQueue;
+        $this->iId = $arElevator["id"];
+        $this->iCurrentFloor = $arElevator["currentFloor"];
+        $this->iCapacity = $arElevator["capacity"];
+        $this->bIsMoving = $arElevator["isMoving"];
+        $this->bIsAvailable = $arElevator["isAvailable"];
+        $this->bIsDoorsOpened = $arElevator["isDoorsOpened"];
+        $this->iHeight = $arElevator["height"];
+        $this->iSpeed = $arElevator["speed"];
+        $this->arFloorQueue = $arElevator["floorQueue"];
         $this->iDirection = self::DIRECTION_NONE;
+        $this->iNumberPassengers = $arElevator["numberPassengers"];
     }
 
     public function moveToFloor($iDestinationFloor): array
@@ -83,14 +81,30 @@ final class Elevator
         );
     }
 
-    public function loadPassenger($oPassenger): void
+    public function loadPassenger(): array
     {
+        ++$this->iNumberPassengers;
 
+        $this->bIsAvailable = $this->iNumberPassengers <= $this->iCapacity;
+
+        return array(
+            "action" => __FUNCTION__
+        );
     }
 
-    public function unloadPassengers(): void
+    public function unloadPassenger(): array
     {
+        --$this->iNumberPassengers;
 
+        if($this->iNumberPassengers < 0){
+            $this->iNumberPassengers = 0;
+        }
+
+        $this->bIsAvailable = $this->iNumberPassengers <= $this->iCapacity;
+
+        return array(
+            "action" => __FUNCTION__
+        );
     }
 
     public function getCapacity(): int
@@ -183,7 +197,8 @@ final class Elevator
             "isMoving" => $this->bIsMoving,
             "isDoorsOpened" => $this->bIsDoorsOpened,
             "floorQueue" => $this->arFloorQueue,
-            "direction" => $this->iDirection
+            "direction" => $this->iDirection,
+            "numberPassengers" => $this->iNumberPassengers
         );
     }
 }

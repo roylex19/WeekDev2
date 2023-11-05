@@ -109,3 +109,7 @@ label {
 .elevator__button-select-floor.active {
     background-color: coral;
 }
+
+.elevator__capacity-indicator.active {
+    color: #d24545;
+}
