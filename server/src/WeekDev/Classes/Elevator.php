@@ -39,15 +39,6 @@ final class Elevator
     {
         $this->bIsMoving = true;
 
-        /*$arFloorQueue = $this->getFloorQueue();
-        if(!empty($arFloorQueue)){
-            $iNextInternalFloor = reset($arFloorQueue);
-            if(abs($iNextInternalFloor - $this->iCurrentFloor) < abs($iDestinationFloor - $this->iCurrentFloor)){
-                array_shift($this->arFloorQueue);
-                $iDestinationFloor = $iNextInternalFloor;
-            }
-        }*/
-
         $iTargetPosition = ($iDestinationFloor - 1) * $this->iHeight;
         $iCurrentPosition = ($this->iCurrentFloor - 1) * $this->iHeight;
         $iDistance = abs($iTargetPosition - $iCurrentPosition);
@@ -144,7 +135,7 @@ final class Elevator
 
     public function getDirection(): int
     {
-        return 1;
+        return $this->iDirection;
     }
 
     public function setDirection(int $iDirection): void
