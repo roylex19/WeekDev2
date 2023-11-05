@@ -2,8 +2,12 @@
 
 namespace WeekDev;
 
-use WeekDev\{Controllers\ElevatorController, Http\Request, Http\Response};
 use Exception;
+use WeekDev\Http\{
+    Controllers\ElevatorController,
+    Request,
+    Response
+};
 
 final class App
 {

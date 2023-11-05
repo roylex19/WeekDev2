@@ -1,6 +1,6 @@
 <?php
 
-namespace WeekDev\Controllers;
+namespace WeekDev\Http\Controllers;
 
 use WeekDev\{Classes\Building, Classes\Elevator, Http\Response};
 
