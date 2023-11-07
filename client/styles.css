@@ -139,6 +139,22 @@ label {
     font-weight: bolder;
 }
 
+.elevator__info {
+    position: absolute;
+    top: 35px;
+    left: 165px;
+    color: #b4b4b4;
+    font-size: 12px;
+    width: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.elevator__info-value {
+    color: #25ff00;
+}
+
 .elevator__floor-indicator {
     width: 21px;
     height: 21px;

@@ -20,12 +20,12 @@ final class App
             }
             $oRequestData = $oRequest->getInput();
             if(!array_key_exists("action", $oRequestData)){
-                throw new Exception("Field 'action' not found");
+                throw new Exception("Parameter 'action' not found");
             }
             $sAction = $oRequestData["action"];
             $oElevatorController = new ElevatorController();
             if(!method_exists($oElevatorController, $sAction)){
-                throw new Exception("Action not found");
+                throw new Exception("Action '$sAction' not found");
             }
             call_user_func(array($oElevatorController, $sAction));
         }catch(Exception $oException){

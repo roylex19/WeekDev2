@@ -195,6 +195,12 @@ class Elevator
         this.indicatorBlock = indicatorBlock;
         this.indicatorFloorNumberBlock = indicatorBlock.querySelector(".indicator__floor-number");
         this.indicatorFloorNumberInternalBlock = element.querySelector(".elevator__floor-indicator");
+        this.doorsTimerTextBlock = element.querySelector(".elevator__doors-timer-text");
+        this.doorsTimerBlock = element.querySelector(".elevator__doors-timer");
+        this.floorCounterTextBlock = element.querySelector(".elevator__floor-counter-text");
+        this.floorCounterBlock = element.querySelector(".elevator__floor-counter");
+        this.floorTimerTextBlock = element.querySelector(".elevator__floor-timer-text");
+        this.floorTimerBlock = element.querySelector(".elevator__floor-timer");
         this.floors = floors.slice(0).reverse();
         this.floor = this.floors[0];
         this.capacity = capacity;
@@ -210,6 +216,8 @@ class Elevator
         this.numberPassengers = 0;
         this.closeDoorsTimeoutId = null;
         this.checkFloorIntervalId = null;
+        this.doorsTimerIntervalId = null;
+        this.floorTimerIntervalId = null;
 
         this.initFloorButtons();
         this.initLoadPassengers();
@@ -277,6 +285,11 @@ class Elevator
         this.floor.setActiveButtonCallElevator(false);
         this.buttonsSelectFloor[this.floor.number - 1].classList.remove("active");
         this.openDoors();
+        app.toggleElement(this.floorCounterBlock, false);
+        app.toggleElement(this.floorTimerBlock, false);
+        if(this.floorTimerIntervalId !== null){
+            clearInterval(this.floorTimerIntervalId);
+        }
     };
 
     closeDoors = () => {
@@ -290,11 +303,18 @@ class Elevator
                 this.setData(res.data.elevator);
             });
         };
+        if(this.doorsTimerIntervalId !== null){
+            clearInterval(this.doorsTimerIntervalId);
+        }
+        app.toggleElement(this.doorsTimerBlock, false);
     };
 
     openDoors = () => {
         if(this.closeDoorsTimeoutId !== null){
             clearTimeout(this.closeDoorsTimeoutId);
+        }
+        if(this.doorsTimerIntervalId !== null){
+            clearInterval(this.doorsTimerIntervalId);
         }
         this.doorsBlock.classList.add("opened");
         this.doorsBlock.ontransitionend = () => {
@@ -307,18 +327,36 @@ class Elevator
             });
         };
         this.closeDoorsTimeoutId = setTimeout(this.closeDoors, this.doorsCloseDelayTime * 1000);
+        let doorsCloseTime = this.doorsCloseDelayTime;
+        app.toggleElement(this.doorsTimerBlock, true);
+        this.updateDoorsTimerText(doorsCloseTime--);
+        this.doorsTimerIntervalId = setInterval(() => this.updateDoorsTimerText(doorsCloseTime--), 1000);
+    };
+
+    updateDoorsTimerText = (time) => {
+        this.doorsTimerTextBlock.innerText = time;
+    };
+
+    updateFloorTimerText = (time) => {
+        this.floorTimerTextBlock.innerText = time;
     };
 
     moveToPosition = (position, duration) => {
         this.element.style.transitionDuration = duration + "s";
         this.element.style.bottom = position + "px";
         this.checkFloorIntervalId = setInterval(this.checkFloor, 100);
+        app.toggleElement(this.floorCounterBlock, true);
+        app.toggleElement(this.floorTimerBlock, true);
+        let floorTimerTime = Math.floor(duration);
+        this.updateFloorTimerText(floorTimerTime--);
+        this.floorTimerIntervalId = setInterval(() => this.updateFloorTimerText(floorTimerTime--), 1000);
     };
 
     checkFloor = () => {
         this.setFloor(this.floors.length - Math.round((this.element.getBoundingClientRect().bottom + window.scrollY) / this.height) + 1);
         this.indicatorFloorNumberBlock.innerText = this.floor.number;
         this.indicatorFloorNumberInternalBlock.innerText = this.floor.number;
+        this.floorCounterTextBlock.innerText = this.floor.number;
     };
 
     setFloor(number){
