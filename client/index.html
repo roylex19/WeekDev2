@@ -39,19 +39,23 @@
             <div class="floor__panel">
                 <button type="button" class="floor__button-call-elevator"></button>
             </div>
-            <div class="floor__indicators"></div>
+            <div class="floor__indicators">
+                <div class="floor__title"></div>
+            </div>
         </div>
     </div>
     <div class="elevators">
         <div class="elevator">
             <div class="elevator__doors"></div>
             <div class="elevator__panel">
+                <div class="elevator__floor-indicator">1</div>
                 <div class="elevator__buttons-floors">
                     <button type="button" class="elevator__button-select-floor"></button>
                 </div>
                 <div class="elevator__buttons-option">
                     <button type="button" class="elevator__button-open-doors"><|></button>
                     <button type="button" class="elevator__button-close-doors">>|<</button>
+                    <button type="button" class="elevator__button-cancel">Отмена</button>
                 </div>
                 <div class="elevator__buttons-passengers">
                     <div class="elevator__capacity-indicator">Перегруз</div>
@@ -60,6 +64,11 @@
                     <button type="button" class="elevator__button-load-passenger">+</button>
                 </div>
             </div>
+        </div>
+    </div>
+    <div class="indicators">
+        <div class="indicator">
+            <div class="indicator__floor-number">1</div>
         </div>
     </div>
 </div>

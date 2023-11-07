@@ -65,6 +65,7 @@ class Building
         this.buildingBlock = document.querySelector(".building");
         this.floorsBlock = this.buildingBlock.querySelector(".floors");
         this.elevatorsBlock = this.buildingBlock.querySelector(".elevators");
+        this.indicatorsBlock = this.buildingBlock.querySelector(".indicators");
         this.numFloors = numFloors;
         this.numElevators = numElevators;
         this.elevatorCapacity = elevatorCapacity;
@@ -83,14 +84,19 @@ class Building
         }
 
         const elevatorBlock = this.elevatorsBlock.querySelector(".elevator");
+        const indicatorBlock = this.indicatorsBlock.querySelector(".indicator");
         this.elevatorsBlock.innerHTML = "";
+        this.indicatorsBlock.innerHTML = "";
         for(let i = 0; i < this.numElevators; i++){
-            const elevator = new Elevator(elevatorBlock.cloneNode(true), i, this.elevatorCapacity, this.floors);
+            const elevator = new Elevator(elevatorBlock.cloneNode(true), i, this.elevatorCapacity, this.floors, indicatorBlock.cloneNode(true));
             this.elevators.push(elevator);
             this.elevatorsBlock.append(elevator.element);
+            this.indicatorsBlock.append(elevator.indicatorBlock);
         }
 
         app.toggleElement(this.buildingBlock, true);
+
+        window.scrollTo(0, document.body.scrollHeight);
 
         setInterval(this.sendSelectedFloorsToServer, 1000);
     };
@@ -159,7 +165,6 @@ class Floor
     constructor(element, number){
         this.element = element;
         this.number = number;
-        this.numberBlock = null;
 
         const buttonCallElevator = element.querySelector(".floor__button-call-elevator");
         buttonCallElevator.addEventListener("click", () => {
@@ -168,14 +173,8 @@ class Floor
         });
         this.buttonCallElevator = buttonCallElevator;
 
-        if(number === 1){
-            const indicatorsBlock = element.querySelector(".floor__indicators");
-            const numberBlock = document.createElement("div");
-            numberBlock.classList.add("floor__number");
-            numberBlock.innerText = number;
-            indicatorsBlock.append(numberBlock);
-            this.numberBlock = numberBlock;
-        }
+        const titleBlock = element.querySelector(".floor__title");
+        titleBlock.innerText = number + " этаж";
     };
 
     setActiveButtonCallElevator = (state) => {
@@ -185,7 +184,7 @@ class Floor
 
 class Elevator
 {
-    constructor(element, id, capacity, floors){
+    constructor(element, id, capacity, floors, indicatorBlock){
         this.element = element;
         this.id = id;
         this.doorsBlock = element.querySelector(".elevator__doors");
@@ -193,6 +192,9 @@ class Elevator
         this.buttonsOptionBlock = element.querySelector(".elevator__buttons-option");
         this.capacityIndicatorBlock = element.querySelector(".elevator__capacity-indicator");
         this.numberPassengersBlock = element.querySelector(".elevator__number-passengers");
+        this.indicatorBlock = indicatorBlock;
+        this.indicatorFloorNumberBlock = indicatorBlock.querySelector(".indicator__floor-number");
+        this.indicatorFloorNumberInternalBlock = element.querySelector(".elevator__floor-indicator");
         this.floors = floors.slice(0).reverse();
         this.floor = this.floors[0];
         this.capacity = capacity;
@@ -200,7 +202,7 @@ class Elevator
         this.isMoving = false;
         this.height = 220;
         this.speed = 2;
-        this.doorsCloseDelayTime = 5;
+        this.doorsCloseDelayTime = 10;
         this.isDoorsOpened = false;
         this.floorQueue = [];
         this.buttonsSelectFloor = [];
@@ -211,6 +213,7 @@ class Elevator
 
         this.initFloorButtons();
         this.initLoadPassengers();
+        this.initButtonCancel();
 
         this.element.addEventListener("transitionend", (e) => {
             if(e.propertyName !== "bottom"){
@@ -265,6 +268,11 @@ class Elevator
         };
     };
 
+    initButtonCancel = () => {
+        const buttonCancel = this.buttonsOptionBlock.querySelector(".elevator__button-cancel");
+        buttonCancel.onclick = () => this.cancel();
+    };
+
     onArrived = () => {
         this.floor.setActiveButtonCallElevator(false);
         this.buttonsSelectFloor[this.floor.number - 1].classList.remove("active");
@@ -308,7 +316,9 @@ class Elevator
     };
 
     checkFloor = () => {
-        this.setFloor(this.floors.length - Math.round(this.element.getBoundingClientRect().bottom / this.height) + 1);
+        this.setFloor(this.floors.length - Math.round((this.element.getBoundingClientRect().bottom + window.scrollY) / this.height) + 1);
+        this.indicatorFloorNumberBlock.innerText = this.floor.number;
+        this.indicatorFloorNumberInternalBlock.innerText = this.floor.number;
     };
 
     setFloor(number){
@@ -325,6 +335,11 @@ class Elevator
         this.numberPassengers = number;
         this.numberPassengersBlock.innerText = number;
         this.capacityIndicatorBlock.classList.toggle("active", !this.isAvailable);
+    };
+
+    cancel = () => {
+        this.floorQueue = [];
+        this.buttonsSelectFloor.forEach(button => button.classList.remove("active"));
     };
 
     getData = () => {

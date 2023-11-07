@@ -13,12 +13,17 @@ final class App
 {
     public static function init(): void
     {
-        $oRequest = new Request();
-        $oRequestData = $oRequest->getInput();
-        $sAction = $oRequestData["action"];
-        $oElevatorController = new ElevatorController();
-
         try{
+            $oRequest = new Request();
+            if(!$oRequest->isAjax()){
+                throw new Exception("Request is not ajax");
+            }
+            $oRequestData = $oRequest->getInput();
+            if(!array_key_exists("action", $oRequestData)){
+                throw new Exception("Field 'action' not found");
+            }
+            $sAction = $oRequestData["action"];
+            $oElevatorController = new ElevatorController();
             if(!method_exists($oElevatorController, $sAction)){
                 throw new Exception("Action not found");
             }
