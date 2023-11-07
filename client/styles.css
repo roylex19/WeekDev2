@@ -7,7 +7,7 @@ html,
 body {
     height: 100%;
     width: 100%;
-    background-color: powderblue;
+    background-color: #333333;
 }
 
 body {
@@ -23,11 +23,18 @@ form {
     padding: 20px;
     justify-content: center;
     align-items: center;
-    font-size: 16px;
+    font-size: 25px;
+    color: #fff;
 }
 
 button {
     cursor: pointer;
+}
+
+form button {
+    width: 200px;
+    height: 50px;
+    font-size: 25px;
 }
 
 .form-group {
@@ -35,8 +42,12 @@ button {
     align-items: center;
 }
 
+.input-value {
+    color: #25ff00;
+}
+
 label {
-    width: 200px;
+    width: 300px;
 }
 
 .hidden {
@@ -111,7 +122,6 @@ label {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
 }
 
 .elevator__panel button {
@@ -145,7 +155,7 @@ label {
     left: 165px;
     color: #b4b4b4;
     font-size: 12px;
-    width: 100px;
+    width: 120px;
     display: flex;
     flex-direction: column;
     gap: 6px;

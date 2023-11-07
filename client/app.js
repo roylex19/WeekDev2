@@ -334,11 +334,11 @@ class Elevator
     };
 
     updateDoorsTimerText = (time) => {
-        this.doorsTimerTextBlock.innerText = time;
+        this.doorsTimerTextBlock.innerText = time + " сек";
     };
 
     updateFloorTimerText = (time) => {
-        this.floorTimerTextBlock.innerText = time;
+        this.floorTimerTextBlock.innerText = time + " сек";
     };
 
     moveToPosition = (position, duration) => {
